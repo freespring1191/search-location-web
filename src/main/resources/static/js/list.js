@@ -12,7 +12,7 @@ $(function() {
     $('.keyword-table-body tr').remove();
     Array.from(Array(10).keys()).forEach(el => {
         $('.keyword-table-body').append(
-            `<tr id="top${el}" keyword="" ">
+            `<tr id="top${el}" data-word="" ">
                 <td class="keywordId">${el+1}</td>
                 <td class="word"></td>
                 <td class="searchCount"></td>
@@ -37,20 +37,6 @@ $(function() {
 });
 
 /**
- * 키워드 순위 TOP 10 클릭시 즉시 조회
- * @param id
- */
-
-const getTopKeyword = (id) => {
-    let topKeyword = $('#'+id).attr('data-word');
-    console.log(topKeyword);
-    if(topKeyword){
-        keyword = topKeyword;
-        getAddress(1)
-    }
-}
-
-/**
  * 키워드 주소 검색
  * @param page
  */
@@ -67,7 +53,11 @@ const getAddress = (page) => {
                 makePagination(res, jsonData);
             getKeywordList(res);
 
+        })
+        .fail(function( jqxhr, textStatus, error ) {
+            alert('시스템 오류');
         });
+    ;
 
 }
 
@@ -80,6 +70,7 @@ const getKeywordList = (res) => {
     $('.word').text('');
     $('.searchCount').text('');
     res.keywordList.forEach((el, i) => {
+        $('#top'+i).attr('data-word',el.word);
         $('.word').eq(i).text(el.word);
         $('.searchCount').eq(i).text(el.searchCount);
     })
@@ -145,6 +136,10 @@ const makePagination = (res, jsonData) => {
         }
     }
 
+    $('#total-data').text(`총 데이터: ${res.address.pageableCount}`)
+    $('#page-count').text(`, 페이지 ${page} / ${totalPages}`)
+
+
     // Array.from(new Array(size),(val,index)=>index+page);
 
     $('#pagination ul').remove();
@@ -208,7 +203,10 @@ jQuery["postJSON"] = function( url, data, callback ) {
         contentType:"application/json; charset=utf-8",
         dataType: "json",
         data: data,
-        success: callback
+        success: callback,
+        error: function () {
+            alert('시스템 오류');
+        }
     });
 };
 
@@ -232,7 +230,10 @@ jQuery["putJSON"] = function( url, data, callback ) {
         contentType:"application/json; charset=utf-8",
         dataType: "json",
         data: data,
-        success: callback
+        success: callback,
+        error: function () {
+            alert('시스템 오류');
+        }
     });
 };
 
@@ -240,16 +241,26 @@ jQuery["putJSON"] = function( url, data, callback ) {
  * 엔터키와 검색 버튼 클릭에 따라 키워드 검색 요청
  */
 $(() => {
+    /**
+     * 엔터키 이벤트
+     */
     $('#keyword').keydown(function (e) {
         if(e.which === 13){
             reqData();
         }
     })
 
+    /**
+     * 검색 버튼 클릭 이벤트
+     */
     $('#searchBtn').click(function (e) {
         reqData();
     })
 
+
+    /**
+     * API 설정 변경 처리
+     */
     $('input[name=apiType]').click(function (e) {
         if($(this).val()) {
 
@@ -258,6 +269,17 @@ $(() => {
             $.putJSON( '/api/apiType', dataString  )
                 .done(function( res ) {
                 },"json");
+        }
+    })
+
+    /**
+     * 키워드 순위 TOP 10 클릭시 해당 키워드로 조회
+     */
+    $('.keyword-table-body tr[id^=top]').click(function (e) {
+        let topKeyword = $(this).attr('data-word');
+        if(topKeyword){
+            keyword = topKeyword;
+            getAddress(1)
         }
     })
 });

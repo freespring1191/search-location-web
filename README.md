@@ -14,7 +14,7 @@
 
 ## 환경 구성
 1. JAVA 11 설치
-2. maven 설치
+2. maven 설치 
 
 ## 셋팅 방법
 ### application.properties 에 키 셋팅
@@ -50,6 +50,15 @@ java -jar target/loc-0.0.1-SNAPSHOT.jar
 - user@email.com / user
 - admin@email.com / admin
 
+4. H2 Console 접속
+> 현재 DB 설정은 스프링부트가 기본 제공하는 H2로 동작하도록 구성되어있음
+> 아래의 정보로 H2 Console로 메모리DB에 접근하여 데이터 확인가능
+> 메모리DB라 서버 다운시 데이터가 삭제됨
+>> 1. `http://localhost:8080/h2-console` 로 H2 Console 접속
+>> 2. JDBC URL: `jdbc:h2:mem:testdb`
+>>  3. User Name: sa
+>>  4. Connect
+
 ## 기능 설명
 ### 키워드 주소 검색
 1. 키워드 검색창에 검색요청할 키워드 입력 후 엔터 혹은 검색 버튼 클릭
@@ -59,6 +68,7 @@ java -jar target/loc-0.0.1-SNAPSHOT.jar
 ### 키워드 검색 순위 TOP 10
 1. 최초 로딩시 저장된 키워드 검색 데이터로 순위 데이터 표시
 2. 키워드 검색 시 마다 카운트 업데이트하고 재조회하여 적용
+3. 키워드 검색 순위 TOP 10 키워드 클릭시 해당 키워드로 즉시 검색 가능
 
 ### 키워드 주소를 지도에 표시하기
 1. 검색된 키워드 주소 테이블의 데이터중 지도에서 보기 원하는 데이터를 클릭하면 지도에 표시

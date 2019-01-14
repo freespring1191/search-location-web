@@ -55,7 +55,7 @@ const getAddress = (page) => {
 
         })
         .fail(function( jqxhr, textStatus, error ) {
-            alert('시스템 오류');
+            console.log(jqxhr,textStatus,error)
         });
     ;
 

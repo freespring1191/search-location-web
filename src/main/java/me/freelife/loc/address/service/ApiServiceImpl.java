@@ -9,6 +9,7 @@ import me.freelife.loc.address.repository.KeywordRepository;
 import me.freelife.loc.external.kakao.address.domain.KakaoResKeyword;
 import me.freelife.loc.external.naver.address.domain.NaverResKeyword;
 import me.freelife.loc.properties.ApiProperty;
+import me.freelife.loc.properties.GoogleProperty;
 import me.freelife.loc.properties.KakaoProperty;
 import me.freelife.loc.properties.NaverProperty;
 import org.slf4j.Logger;
@@ -29,8 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static me.freelife.loc.commons.ApiTypeName.KAKAO;
-import static me.freelife.loc.commons.ApiTypeName.NAVER;
+import static me.freelife.loc.commons.ApiTypeName.*;
 
 @Service
 public class ApiServiceImpl implements ApiService {
@@ -39,14 +39,16 @@ public class ApiServiceImpl implements ApiService {
     private final RestTemplate restTemplate;
     private final KakaoProperty kakao;
     private final NaverProperty naver;
+    private final GoogleProperty google;
     private final AddressAdapter adapter;
     private final KeywordRepository keywordRepository;
     private final ApiInfoRepository apiInfoRepository;
 
-    public ApiServiceImpl(RestTemplateBuilder restTemplateBuilder, KakaoProperty kakao, NaverProperty naver, AddressAdapter adapter, KeywordRepository keywordRepository, ApiInfoRepository apiInfoRepository) {
+    public ApiServiceImpl(RestTemplateBuilder restTemplateBuilder, KakaoProperty kakao, NaverProperty naver, GoogleProperty google, AddressAdapter adapter, KeywordRepository keywordRepository, ApiInfoRepository apiInfoRepository) {
         this.restTemplate = restTemplateBuilder.build();
         this.kakao = kakao;
         this.naver = naver;
+        this.google = google;
         this.adapter = adapter;
         this.keywordRepository = keywordRepository;
         this.apiInfoRepository = apiInfoRepository;
@@ -102,16 +104,22 @@ public class ApiServiceImpl implements ApiService {
         }
         this.keywordRepository.save(postData);
 
+        ApiType apiType = getApiType();
+
+        String paramApiType = String.valueOf(map.get("type"));
+        if(paramApiType != null) {
+            ApiType paramType = ApiType.findByApiType(paramApiType);
+            if(paramType != null){
+                apiType = apiType.isEquals(paramApiType) ? apiType : paramType ;
+                map.put("type",paramApiType);
+            }
+        }
+
+        log.info("## 파라메터 타입 우선 적용으로 "+ apiType + " API 으로 검색 요청");
         map = SetApiType(map);
         ResponseEntity resData =  externalApiTransfer(map, getClassType(map));
 
-        ApiType apiType = getApiType();
-
-        if(map.get("type") != null) {
-            ApiType paramType = ApiType.valueOf(String.valueOf(map.get("type")).toUpperCase());
-            if(apiType != paramType) apiType = paramType;
-        }
-
+        //공통 주소 형식으로 변환
         Address address = adapter.externalAddressConverter(resData, apiType);
         return address;
     }
@@ -129,12 +137,16 @@ public class ApiServiceImpl implements ApiService {
 
 
     @Override
-    public ApiType apiTypeConverter(ApiType apiType) {
+    public String apiTypeConverter(String apiType) {
         Optional<ApiInfo> apiInfo = this.apiInfoRepository.findByApiId(0);
         ApiInfo updateApiInfo = apiInfo.get();
-        updateApiInfo.setApiType(apiType);
-        this.apiInfoRepository.save(updateApiInfo);
-        return getApiType();
+
+        if(ApiType.findByApiType(apiType) != null) {
+            updateApiInfo.setApiType(ApiType.valueOf(apiType));
+            this.apiInfoRepository.save(updateApiInfo);
+            log.info("## "+ apiType + " 타입 으로 변환");
+        }
+        return getApiType().getName();
     }
 
     /**
@@ -147,6 +159,8 @@ public class ApiServiceImpl implements ApiService {
             case KAKAO :
                 return KakaoResKeyword.class;
             case NAVER :
+                return NaverResKeyword.class;
+            case GOOGLE :
                 return NaverResKeyword.class;
         }
         return KakaoResKeyword.class;
@@ -164,6 +178,9 @@ public class ApiServiceImpl implements ApiService {
                 break;
             case NAVER :
                 map = keyMapping(map, naver);
+                break;
+            case GOOGLE :
+                map = keyMapping(map, google);
                 break;
         }
         return map;

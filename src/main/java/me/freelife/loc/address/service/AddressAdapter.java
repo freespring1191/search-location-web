@@ -4,6 +4,7 @@ import me.freelife.loc.address.domain.Address;
 import me.freelife.loc.address.domain.ApiType;
 import me.freelife.loc.commons.ApiTypeName;
 import me.freelife.loc.external.kakao.address.domain.KakaoResKeyword;
+import me.freelife.loc.external.naver.address.domain.NaverResKeyword;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -28,39 +29,71 @@ public class AddressAdapter<T> {
 
         switch (apiType){
             case ApiTypeName.KAKAO:
-                ResponseEntity<KakaoResKeyword> data = (ResponseEntity<KakaoResKeyword>) resData;
+                ResponseEntity<KakaoResKeyword> kakaoData = (ResponseEntity<KakaoResKeyword>) resData;
 
-                KakaoResKeyword.Meta meta = data.getBody().getMeta();
-                ArrayList<KakaoResKeyword.Documents> doc = data.getBody().getDocuments();
-                doc.forEach(i ->
-                    list.add(
-                            Address.AddressDocuments.builder()
-                                    .addressName(i.getAddressName())
-                                    .roadAddressName(i.getRoadAddressName())
-                                    .longitude(i.getLongitude())
-                                    .latitude(i.getLatitude())
-                                    .distance(i.getDistance())
-                                    .placeName(i.getPlaceName())
-                                    .categoryName(i.getCategoryName())
-                                    .phone(i.getPhone())
-                                    .placeUrl(i.getPlaceUrl())
-                                    .build()
-                    )
+                KakaoResKeyword.Meta kakaoMeta = kakaoData.getBody().getMeta();
+                ArrayList<KakaoResKeyword.Documents> kakaoDoc = kakaoData.getBody().getDocuments();
+                kakaoDoc.forEach(i ->
+                        listMaker(list, i.getAddressName(), i.getRoadAddressName(), i.getLongitude(), i.getLatitude(), i.getDistance(), i.getPlaceName(), i.getCategoryName(), i.getPhone(), i.getPlaceUrl())
                 );
 
                 address = address.builder()
-                        .type(ApiType.KAKAO)
-                        .totalCount(meta.getTotalCount())
-                        .pageableCount(meta.getPageableCount())
-                        .isEnd(meta.isEnd())
+                        .type(type)
+                        .totalCount(kakaoMeta.getTotalCount())
+                        .pageableCount(kakaoMeta.getPageableCount())
+                        .isEnd(kakaoMeta.isEnd())
                         .address(list).build();
             break;
             case ApiTypeName.NAVER:
+                ResponseEntity<NaverResKeyword> naverData = (ResponseEntity<NaverResKeyword>) resData;
 
+                NaverResKeyword.Meta naverMeta = naverData.getBody().getMeta();
+                ArrayList<NaverResKeyword.Documents> naverDoc = naverData.getBody().getDocuments();
+                naverDoc.forEach(i ->
+                        listMaker(list, i.getAddressName(), i.getRoadAddressName(), i.getLongitude(), i.getLatitude(), i.getDistance(), i.getPlaceName(), i.getCategoryName(), i.getPhone(), i.getPlaceUrl())
+                );
 
+                address = address.builder()
+                        .type(type)
+                        .totalCount(naverMeta.getTotalCount())
+                        .pageableCount(naverMeta.getPageableCount())
+                        .isEnd(naverMeta.isEnd())
+                        .address(list).build();
+                break;
+            case ApiTypeName.GOOGLE:
+                ResponseEntity<KakaoResKeyword> googleData = (ResponseEntity<KakaoResKeyword>) resData;
+
+                KakaoResKeyword.Meta googleMeta = googleData.getBody().getMeta();
+                ArrayList<KakaoResKeyword.Documents> googleDoc = googleData.getBody().getDocuments();
+                googleDoc.forEach(i ->
+                        listMaker(list, i.getAddressName(), i.getRoadAddressName(), i.getLongitude(), i.getLatitude(), i.getDistance(), i.getPlaceName(), i.getCategoryName(), i.getPhone(), i.getPlaceUrl())
+                );
+
+                address = address.builder()
+                        .type(type)
+                        .totalCount(googleMeta.getTotalCount())
+                        .pageableCount(googleMeta.getPageableCount())
+                        .isEnd(googleMeta.isEnd())
+                        .address(list).build();
                 break;
         }
 
         return address;
+    }
+
+    private boolean listMaker(List<Address.AddressDocuments> list, String addressName, String roadAddressName, String longitude, String latitude, String distance, String placeName, String categoryName, String phone, String placeUrl) {
+        return list.add(
+                Address.AddressDocuments.builder()
+                        .addressName(addressName)
+                        .roadAddressName(roadAddressName)
+                        .longitude(longitude)
+                        .latitude(latitude)
+                        .distance(distance)
+                        .placeName(placeName)
+                        .categoryName(categoryName)
+                        .phone(phone)
+                        .placeUrl(placeUrl)
+                        .build()
+        );
     }
 }

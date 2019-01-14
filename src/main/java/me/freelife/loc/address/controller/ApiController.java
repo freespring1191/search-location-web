@@ -81,17 +81,18 @@ public class ApiController {
     }
 
     /**
-     * 최초 로딩 시 키워드 검색 TOP 10
+     * API 타입 변경
      * @return
      */
     @PutMapping("/apiType")
-    public ResponseEntity apiTypeConverter(@RequestBody String apiType) throws IOException {
+    public ResponseEntity apiTypeConverter(@RequestBody String apiType, Model model) throws IOException {
         Map<String, Object> map = objectMapper.readValue(apiType, new TypeReference<Map<String, String>>(){});
         apiType = (String) map.get("apiType");
-        ApiType changeType = ApiType.valueOf(apiType);
         if(!apiType.isBlank())
-            changeType = apiService.apiTypeConverter(changeType);
-        return ResponseEntity.ok(changeType);
+            apiType = apiService.apiTypeConverter(apiType);
+
+        model.addAttribute(apiType);
+        return ResponseEntity.ok(model);
     }
 
     private ResponseEntity badRequest(Errors errors) {

@@ -7,7 +7,7 @@ import lombok.*;
 import java.util.ArrayList;
 
 /**
-   @FileName  : NaverResKeyword.java
+   @FileName  : GoogleResKeyword.java
    @Description : 키워드로 장소 검색
    @author      : KMS
    @since       : 2017. 8. 10.

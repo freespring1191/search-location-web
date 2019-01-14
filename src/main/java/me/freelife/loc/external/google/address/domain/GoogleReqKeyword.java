@@ -1,4 +1,4 @@
-package me.freelife.loc.external.naver.address.domain;
+package me.freelife.loc.external.google.address.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,7 +25,7 @@ import javax.validation.constraints.NotNull;
 @Builder @NoArgsConstructor @AllArgsConstructor
 @Getter @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class NaverReqKeyword {
+public class GoogleReqKeyword {
 
     /** [주소 검색] =========================================================*/
     /** 검색을 원하는 질의어(필수) */

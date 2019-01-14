@@ -1,4 +1,4 @@
-package me.freelife.loc.external.kakao.address.domain;
+package me.freelife.loc.external.google.address.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -23,7 +23,7 @@ import java.util.ArrayList;
 @Builder @NoArgsConstructor @AllArgsConstructor
 @Getter @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class KakaoResKeyword {
+public class GoogleResKeyword {
 
     @JsonProperty("meta")
     private Meta meta;

@@ -19,5 +19,5 @@ public interface ApiService {
 
     ApiType getApiType();
 
-    ApiType apiTypeConverter(ApiType apiType);
+    String apiTypeConverter(String apiType);
 }

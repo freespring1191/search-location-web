@@ -231,8 +231,8 @@ jQuery["putJSON"] = function( url, data, callback ) {
         dataType: "json",
         data: data,
         success: callback,
-        error: function () {
-            alert('시스템 오류');
+        error: function( jqxhr, textStatus, error ) {
+            console.log(jqxhr,textStatus,error)
         }
     });
 };

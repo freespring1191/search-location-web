@@ -9,7 +9,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 /**
-   @FileName  : NaverReqKeyword.java
+   @FileName  : GoogleReqKeyword.java
    @Description : GET으로 요청 카카오 키워드로 장소 검색 REST 파라메터
    @author      : KMS
    @since       : 2017. 8. 10.
